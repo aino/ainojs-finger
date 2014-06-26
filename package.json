@@ -18,6 +18,6 @@
   "author": "Aino",
   "devDependencies": {},
   "dependencies": {
-    "ainojs-detect": "^1.0.0"
+    "ainojs-detect": "latest"
   }
 }
