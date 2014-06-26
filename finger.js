@@ -1,4 +1,5 @@
 var detect = require('ainojs-detect')
+var requestFrame = require('ainojs-requestframe')
 
 // shortcuts
 var document = window.document,
@@ -27,19 +28,6 @@ var getWidth = function(elem) {
 
   return w
 }
-
-// request animation shim
-var requestFrame = (function(){
-  var r = 'RequestAnimationFrame'
-  return window.requestAnimationFrame ||
-         window['webkit'+r] ||
-         window['moz'+r] ||
-         window['o'+r] ||
-         window['ms'+r] ||
-         function( callback ) {
-           window.setTimeout(callback, 1000 / 60)
-         }
-}())
 
 ///
 
