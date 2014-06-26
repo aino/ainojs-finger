@@ -7,9 +7,6 @@
     "url": "https://github.com/aino/ainojs-finger"
   },
   "license": "MIT",
-  "dependencies": {
-    "ainojs-detect": "^1.0.1"
-  },
   "bugs": {
     "url": "https://github.com/aino/ainojs-finger/issues"
   },
@@ -19,6 +16,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Aino",
-  "devDependencies": {
+  "devDependencies": {},
+  "dependencies": {
+    "ainojs-detect": "^1.0.0"
   }
 }

@@ -122,7 +122,6 @@ var Finger = function(elem, options) {
 
   // set up width
   this.setup()
-
 }
 
 Finger.prototype = {
