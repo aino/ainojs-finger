@@ -1,23 +1,33 @@
 {
+<<<<<<< HEAD
   "name": "ainojs-finger",
   "version": "1.0.2",
   "description": "Swipe/flick physics for touch devices",
+=======
+  "name": "ainojs-animate",
+  "version": "1.0.1",
+  "description": "Animate values using requestframe",
+>>>>>>> 9a39d2173d75cc3fc0a126f64f11f8b91239b159
   "repository": {
     "type": "git",
-    "url": "https://github.com/aino/ainojs-finger"
+    "url": "https://github.com/aino/ainojs-animate"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/aino/ainojs-finger/issues"
+    "url": "https://github.com/aino/ainojs-animate/issues"
   },
-  "homepage": "https://github.com/aino/ainojs-finger",
-  "main": "finger.js",
+  "homepage": "https://github.com/aino/ainojs-animate",
+  "main": "animate.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Aino",
   "devDependencies": {},
+<<<<<<< HEAD
   "dependencies": {
     "ainojs-detect": "^1.0.0"
   }
+=======
+  "dependencies": {}
+>>>>>>> 9a39d2173d75cc3fc0a126f64f11f8b91239b159
 }
