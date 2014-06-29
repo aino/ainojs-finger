@@ -124,6 +124,7 @@ Finger.prototype = {
       this.index = Math.max(0, Math.min( this.index, this.length-1 ) )
       this.pos = this.to = -this.width*this.index
     }
+    this.loop()
   },
 
   ontouchstart: function(e) {
@@ -244,13 +245,15 @@ Finger.prototype = {
 
             // detect bounce
             var isEdge = abs(this.start.pos) == abs(this.index*this.width)
-            var bounce = !isEdge && abs(velocity) > 2.3 && abs(travel) / this.width > 0.3
+            var bounce = !isEdge && abs(velocity) > 4 && abs(travel) / this.width > 0.5
+            var duration = this.config.duration * (( !isEdge && abs(distance/this.width) < 0.2 ) ? 0.5 : 1)
+            console.log(duration)
 
             this.anim = { 
               position: this.pos, 
               distance: distance,
               time: +new Date(), 
-              duration: this.config.duration, 
+              duration: duration, 
               isEdge: isEdge,
               easing: bounce ? this.config.bounceEasing : this.config.easing
             }
