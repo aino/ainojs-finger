@@ -18,6 +18,7 @@
   "author": "Aino",
   "devDependencies": {},
   "dependencies": {
+    "ainojs-dimensions": "latest",
     "ainojs-detect": "latest",
     "ainojs-requestframe": "latest"
   }

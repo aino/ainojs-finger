@@ -1,10 +1,10 @@
-var detect = require('ainojs-detect')
-var requestFrame = require('ainojs-requestframe')
+var Detect = require('ainojs-detect')
+var RequestFrame = require('ainojs-requestframe')
+var Dimensions = require('ainojs-dimensions')
 
 // shortcuts
 var document = window.document,
     abs = Math.abs,
-    comp = window.getComputedStyle,
     html = document.documentElement
 
 // short event bindings
@@ -17,18 +17,6 @@ var unbind = function(elem, type, handler) {
 
 // track velocity
 var tracker = []
-
-var getWidth = function(elem) {
-
-  var w = Math.ceil( ("getBoundingClientRect" in elem) ?
-    elem.getBoundingClientRect().width :
-    elem.offsetWidth )
-
-  if ( !w && comp )
-    w = comp(elem, null).width.replace('px','')
-
-  return w
-}
 
 ///
 
@@ -78,7 +66,7 @@ var Finger = function(elem, options) {
   this.index = this.config.start
   this.anim = 0
 
-  if ( !detect.translate3d ) {
+  if ( !Detect.translate3d ) {
     this.child.style.position = 'absolute'
     this.elem.style.position = 'relative'
   }
@@ -97,7 +85,7 @@ var Finger = function(elem, options) {
 
     var style = self.child.style
 
-    if (!detect.translate3d) {
+    if (!Detect.translate3d) {
       // this is actually faster than CSS3 translate
       return style.left = self.pos+'px'
     }
@@ -118,13 +106,18 @@ Finger.prototype = {
   constructor: Finger,
 
   setup: function() {
-    this.width = getWidth( this.elem )
-    this.length = Math.ceil( getWidth(this.child) / this.width )
+    this.width = Dimensions( this.elem ).width
+    this.length = Math.ceil( Dimensions(this.child).width / this.width )
     if ( this.index !== 0 ) {
-      this.index = Math.max(0, Math.min( this.index, this.length-1 ) )
+      this.validateIndex()
       this.pos = this.to = -this.width*this.index
     }
     this.loop()
+  },
+
+  validateIndex: function(index) {
+    if ( index < 0 || index > this.length-1 )
+      throw 'Index '+index+' is out of bounds'
   },
 
   ontouchstart: function(e) {
@@ -204,18 +197,28 @@ Finger.prototype = {
 
     // if not scrolling vertically
     if ( !this.isScrolling ) {
-      this.show( this.index + ( isValidSlide && !isPastBounds ? (this.deltaX < 0 ? 1 : -1) : 0 ) )
+      this.animateTo( this.index + ( isValidSlide && !isPastBounds ? (this.deltaX < 0 ? 1 : -1) : 0 ) )
     }
 
     unbind(document, 'touchmove', this.ontouchmove)
     unbind(document, 'touchend', this.ontouchend)
   },
 
-  show: function( index ) {
-    if ( index != this.index ) {
+  animateTo: function( index ) {
+    this.validateIndex(index)
+    if ( index !== this.index )
       this.config.onchange.call(this, index)
-    }
     this.to = -( index*this.width )
+    this.index = index
+  },
+
+  jumpTo: function( index ) {
+    this.validateIndex( index )
+    if ( index !== this.index ) {
+      this.config.onchange.call(this, index)
+      this.config.oncomplete.call(this, index)
+    }
+    this.to = this.pos = -( index*this.width )
     this.index = index
   },
 
@@ -238,23 +241,23 @@ Finger.prototype = {
             // save animation parameters
             // extract velocity first
             var velocity = 0.6
-            var last = tracker[tracker.length-1]
-            var travel = (last.pageX - tracker[0].pageX)
-            velocity = travel / (last.time - tracker[0].time)
-            tracker = []
+            var travel = this.width
+            if ( tracker.length ) {
+              var last = tracker[tracker.length-1]
+              travel = (last.pageX - tracker[0].pageX)
+              velocity = travel / (last.time - tracker[0].time)
+              tracker = []
+            }
 
             // detect bounce
             var isEdge = abs(this.start.pos) == abs(this.index*this.width)
-            var bounce = !isEdge && abs(velocity) > 4 && abs(travel) / this.width > 0.5
-            var duration = this.config.duration * (( !isEdge && abs(distance/this.width) < 0.2 ) ? 0.5 : 1)
-            console.log(duration)
+            var bounce = !isEdge && abs(velocity) > 4 && abs(travel) / this.width > 0.4
 
             this.anim = { 
               position: this.pos, 
               distance: distance,
               time: +new Date(), 
-              duration: duration, 
-              isEdge: isEdge,
+              duration: this.config.duration * (( !isEdge && abs(distance/this.width) < 0.2 ) ? 0.7 : 1),
               easing: bounce ? this.config.bounceEasing : this.config.easing
             }
         }
@@ -264,7 +267,7 @@ Finger.prototype = {
     }
     this.setX()
     if ( loop )
-      requestFrame(this.loop.bind(this))
+      RequestFrame(this.loop.bind(this))
   }
 }
 
