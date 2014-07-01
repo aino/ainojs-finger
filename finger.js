@@ -33,7 +33,7 @@ var Finger = function(elem, options) {
   // default options
   this.config = {
     start: 0,
-    duration: 340,
+    duration: 600, // will decrease on smaller screens
     onchange: function() {},
     oncomplete: function() {},
     easing: function(x,t,b,c,d) {
@@ -109,7 +109,7 @@ Finger.prototype = {
     this.width = Dimensions( this.elem ).width
     this.length = Math.ceil( Dimensions(this.child).width / this.width )
     if ( this.index !== 0 ) {
-      this.validateIndex()
+      this.validateIndex( this.index )
       this.pos = this.to = -this.width*this.index
     }
     this.loop()
@@ -134,6 +134,13 @@ Finger.prototype = {
     this.isScrolling = null
     this.touching = true
     this.deltaX = 0
+    this.offset = 0
+
+    if ( this.anim ) {
+      this.to = this.pos
+      this.offset = (this.pos + (this.width*this.index))
+      this.anim = 0
+    }
 
     bind(document, 'touchmove', this.ontouchmove)
     bind(document, 'touchend', this.ontouchend)
@@ -148,7 +155,7 @@ Finger.prototype = {
     // ensure swiping with one touch and not pinching
     if( touch && touch.length > 1 || e.scale && e.scale !== 1 ) return
 
-    this.deltaX = touch[0].pageX - this.start.pageX
+    this.deltaX = touch[0].pageX - this.start.pageX + this.offset
 
     // determine if scrolling test has run - one time test
     if ( this.isScrolling === null ) {
@@ -231,39 +238,42 @@ Finger.prototype = {
     if ( this.touching || abs(distance) <= 1 ) {
       this.pos = this.to
       if ( this.anim ) {
+        this.index = abs(Math.round(this.pos/this.width))
         this.config.oncomplete( this.index )
         loop = false
       }
       this.anim = 0
     } else {
-        if ( !this.anim ) {
+      if ( !this.anim ) {
 
-            // save animation parameters
-            // extract velocity first
-            var velocity = 0.6
-            var travel = this.width
-            if ( tracker.length ) {
-              var last = tracker[tracker.length-1]
-              travel = (last.pageX - tracker[0].pageX)
-              velocity = travel / (last.time - tracker[0].time)
-              tracker = []
-            }
-
-            // detect bounce
-            var isEdge = abs(this.start.pos) == abs(this.index*this.width)
-            var bounce = !isEdge && abs(velocity) > 4 && abs(travel) / this.width > 0.4
-
-            this.anim = { 
-              position: this.pos, 
-              distance: distance,
-              time: +new Date(), 
-              duration: this.config.duration * (( !isEdge && abs(distance/this.width) < 0.2 ) ? 0.7 : 1),
-              easing: bounce ? this.config.bounceEasing : this.config.easing
-            }
+        // save animation parameters
+        // extract velocity first
+        var velocity = 0.6
+        var travel = this.width
+        if ( tracker.length ) {
+          var last = tracker[tracker.length-1]
+          travel = (last.pageX - tracker[0].pageX)
+          velocity = travel / (last.time - tracker[0].time)
+          tracker = []
         }
-        // apply easing
-        this.pos = this.anim.easing(null, +new Date() - this.anim.time, this.anim.position, this.anim.distance, this.anim.duration)
 
+        // detect bounce
+        var isEdge = abs(this.start.pos) == abs(this.index*this.width)
+        var bounce = !isEdge && abs(velocity) > 2.5 && abs(travel) / this.width > 0.35
+        var duration = this.config.duration
+        if ( !isEdge )
+          duration *= Math.min(1, Math.max(0.5, abs(distance/768))) // factorize 1280
+
+        this.anim = { 
+          position: this.pos, 
+          distance: distance,
+          time: +new Date(), 
+          duration: duration,
+          easing: bounce ? this.config.bounceEasing : this.config.easing
+        }
+      }
+      // apply easing
+      this.pos = this.anim.easing(null, +new Date() - this.anim.time, this.anim.position, this.anim.distance, this.anim.duration)
     }
     this.setX()
     if ( loop )
