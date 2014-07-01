@@ -63,7 +63,7 @@ var Finger = function(elem, options) {
   this.to = this.pos = 0
   this.touching = false
   this.start = {}
-  this.index = this.config.start
+  this.index = this.projection = this.config.start
   this.anim = 0
 
   if ( !Detect.translate3d ) {
@@ -204,7 +204,9 @@ Finger.prototype = {
 
     // if not scrolling vertically
     if ( !this.isScrolling ) {
-      this.animateTo( this.index + ( isValidSlide && !isPastBounds ? (this.deltaX < 0 ? 1 : -1) : 0 ) )
+      this.projection = this.projection + ( isValidSlide && !isPastBounds ? 
+        ((this.deltaX-this.offset) < 0 ? 1 : -1) : 0 )
+      this.animateTo( this.projection )
     }
 
     unbind(document, 'touchmove', this.ontouchmove)
@@ -216,7 +218,7 @@ Finger.prototype = {
     if ( index !== this.index )
       this.config.onchange.call(this, index)
     this.to = -( index*this.width )
-    this.index = index
+    this.index = this.projection = index
   },
 
   jumpTo: function( index ) {
@@ -226,7 +228,7 @@ Finger.prototype = {
       this.config.oncomplete.call(this, index)
     }
     this.to = this.pos = -( index*this.width )
-    this.index = index
+    this.index = this.projection = index
   },
 
   loop: function() {
@@ -238,7 +240,7 @@ Finger.prototype = {
     if ( this.touching || abs(distance) <= 1 ) {
       this.pos = this.to
       if ( this.anim ) {
-        this.index = abs(Math.round(this.pos/this.width))
+        this.index = this.projection = abs(Math.round(this.pos/this.width))
         this.config.oncomplete( this.index )
         loop = false
       }
