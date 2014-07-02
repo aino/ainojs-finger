@@ -96,6 +96,8 @@ var Finger = function(elem, options) {
   bind(elem, 'touchstart', this.ontouchstart)
   bind(window, 'resize', this.setup)
   bind(window, 'orientationchange', this.setup)
+  bind(document, 'touchmove', this.ontouchmove)
+  bind(document, 'touchend', this.ontouchend)
 
   // set up width
   this.setup()
@@ -109,15 +111,22 @@ Finger.prototype = {
     this.width = Dimensions( this.elem ).width
     this.length = Math.ceil( Dimensions(this.child).width / this.width )
     if ( this.index !== 0 ) {
-      this.validateIndex( this.index )
+      this.index = this.validateIndex( this.index )
       this.pos = this.to = -this.width*this.index
     }
     this.loop()
   },
 
+  destroy: function() {
+    unbind(elem, 'touchstart', this.ontouchstart)
+    unbind(window, 'resize', this.setup)
+    unbind(window, 'orientationchange', this.setup)
+    unbind(document, 'touchmove', this.ontouchmove)
+    unbind(document, 'touchend', this.ontouchend)
+  },
+
   validateIndex: function(index) {
-    if ( index < 0 || index > this.length-1 )
-      throw 'Index '+index+' is out of bounds'
+    return Math.min(this.length-1, Math.max(0, index))
   },
 
   ontouchstart: function(e) {
@@ -142,13 +151,16 @@ Finger.prototype = {
       this.anim = 0
     }
 
-    bind(document, 'touchmove', this.ontouchmove)
-    bind(document, 'touchend', this.ontouchend)
+    // Android bug: https://code.google.com/p/android/issues/detail?id=19827
+    e.preventDefault()
 
     this.loop()
   },
 
   ontouchmove: function(e) {
+
+    if ( !this.touching )
+      return
 
     var touch = e.touches
 
@@ -161,7 +173,7 @@ Finger.prototype = {
     if ( this.isScrolling === null ) {
       this.isScrolling = !!(
         this.isScrolling ||
-        abs(this.deltaX) < abs(touch[0].pageY - this.start.pageY)
+        abs(touch[0].pageX - this.start.pageX) < abs(touch[0].pageY - this.start.pageY)
       )
     }
 
@@ -192,6 +204,9 @@ Finger.prototype = {
 
   ontouchend: function(e) {
 
+    if ( !this.touching )
+      return
+
     this.touching = false
 
     // determine if slide attempt triggers next/prev slide
@@ -204,17 +219,15 @@ Finger.prototype = {
 
     // if not scrolling vertically
     if ( !this.isScrolling ) {
-      this.projection = this.projection + ( isValidSlide && !isPastBounds ? 
+      this.projection += ( isValidSlide && !isPastBounds ? 
         ((this.deltaX-this.offset) < 0 ? 1 : -1) : 0 )
       this.animateTo( this.projection )
-    }
-
-    unbind(document, 'touchmove', this.ontouchmove)
-    unbind(document, 'touchend', this.ontouchend)
+    } else if ( this.offset )
+      this.animateTo( this.index )
   },
 
   animateTo: function( index ) {
-    this.validateIndex(index)
+    index = this.validateIndex(index)
     if ( index !== this.index )
       this.config.onchange.call(this, index)
     this.to = -( index*this.width )
@@ -222,7 +235,7 @@ Finger.prototype = {
   },
 
   jumpTo: function( index ) {
-    this.validateIndex( index )
+    index = this.validateIndex( index )
     if ( index !== this.index ) {
       this.config.onchange.call(this, index)
       this.config.oncomplete.call(this, index)
@@ -264,7 +277,7 @@ Finger.prototype = {
         var bounce = !isEdge && abs(velocity) > 2.5 && abs(travel) / this.width > 0.35
         var duration = this.config.duration
         if ( !isEdge )
-          duration *= Math.min(1, Math.max(0.5, abs(distance/768))) // factorize 1280
+          duration *= Math.min(1.2, Math.max(0.6, abs(distance/768))) // factorize 768
 
         this.anim = { 
           position: this.pos, 
