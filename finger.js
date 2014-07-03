@@ -18,8 +18,6 @@ var unbind = function(elem, type, handler) {
 // track velocity
 var tracker = []
 
-///
-
 var Finger = function(elem, options) {
 
   // test for basic js support
