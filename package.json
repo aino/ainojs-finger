@@ -19,7 +19,7 @@
   "devDependencies": {},
   "dependencies": {
     "ainojs-dimensions": "latest",
-    "ainojs-detect": "latest",
+    "ainojs-events": "latest",
     "ainojs-requestframe": "latest"
   }
 }
