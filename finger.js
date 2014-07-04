@@ -264,7 +264,7 @@ Finger.prototype.loop = function() {
     // apply easing
     this.pos = this.anim.easing(null, +new Date() - this.anim.time, this.anim.position, this.anim.distance, this.anim.duration)
   }
-  this.trigger('step', {
+  this.trigger('frame', {
     value: -this.pos/this.width,
     position: this.pos
   }, this)

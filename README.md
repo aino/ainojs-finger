@@ -18,7 +18,7 @@ The element must be a container that contains another slidecontainer. Example ma
 All CSS must be added manually. Finger implemenets the ainojs-events interface. Example:
   
     // callback for each frame:
-    finger.on('step', function(e) {
+    finger.on('frame', function(e) {
       console.log(e.value) // index value from 0-[length]
       console.log(e.position) // position value
     })
@@ -35,5 +35,5 @@ Options:
 
 Events:
 
-- step - triggers every frame. Event object: *value* and *position*
+- frame - triggers every frame. Event object: *value* and *position*
 - complete - triggers when animation is complete. Event object: *index*
