@@ -32,8 +32,11 @@ Options:
 
 - start (0) - starting point
 - duration (600) - animation duration in ms
+- dubltap (true) - set to false for faster tap event if doubletap is not used
 
 Events:
 
 - frame - triggers every frame. Event object: *value* and *position*
 - complete - triggers when animation is complete. Event object: *index*
+- tap - triggers when a tap is detected. Event object: *target*
+- dbltap - triggers when a doubbletap is detected. Event object: *target*

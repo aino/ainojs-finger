@@ -20,7 +20,7 @@ var tracker = []
 var Finger = function(elem, options) {
 
   // test for basic js support
-  if ( !document.addEventListener || !Array.prototype.forEach )  {
+  if ( !document.addEventListener || !Array.prototype.forEach || !('contains' in document.createElement('a')) )  {
     return
   }
 
@@ -31,6 +31,7 @@ var Finger = function(elem, options) {
   this.config = {
     start: 0,
     duration: 600, // will decrease on smaller screens
+    dbltap: true, // set to false for faster tap event if doubletap is not needed
     easing: function(x,t,b,c,d) {
       return -c * ((t=t/d-1)*t*t*t - 1) + b // easeOutQuart
     },
@@ -60,6 +61,13 @@ var Finger = function(elem, options) {
   this.start = {}
   this.index = this.projection = this.config.start
   this.anim = 0
+  this.tap = 0
+  this.clearTap = function() {
+    if ( this.tap ) {
+      window.clearTimeout(this.tap.timer)
+      this.tap = 0
+    }
+  }.bind(this)
 
   // Bind event handlers to context
   ;['ontouchstart','ontouchmove','ontouchend','setup'].forEach(function(fn) {
@@ -116,7 +124,9 @@ Finger.prototype.ontouchstart = function(e) {
     pageY: touch[0].pageY,
     time:  +new Date(),
     pos:   this.pos || 0,
-    prevent: function() { e.preventDefault() }
+    prevent: function() { e.preventDefault() },
+    distance: 0,
+    target: e.target
   }
 
   this.isScrolling = null
@@ -138,19 +148,33 @@ Finger.prototype.ontouchmove = function(e) {
   if ( !this.touching )
     return
 
+  // don’t swipe if zoomed
+  if ( Dimensions(document.documentElement).width / window.innerWidth > 1 )
+    return
+
   var touch = e.touches
 
   // ensure swiping with one touch and not pinching
   if( touch && touch.length > 1 || e.scale && e.scale !== 1 ) return
 
   this.deltaX = touch[0].pageX - this.start.pageX + this.offset
+  
+  var dx = abs(touch[0].pageX - this.start.pageX)
+  var dy = abs(touch[0].pageY - this.start.pageY)
 
   // determine if scrolling test has run - one time test
   if ( this.isScrolling === null ) {
     this.isScrolling = !!(
-      this.isScrolling ||
-      abs(touch[0].pageX - this.start.pageX) < abs(touch[0].pageY - this.start.pageY)
+      this.isScrolling || dx < dy
     )
+  }
+
+  // save distance for tap event
+  this.start.distance = Math.max( dx, dy )
+
+  // clear old taps on move
+  if ( this.start.distance > 2 ) {
+    this.clearTap()
   }
 
   // if user is not trying to scroll vertically
@@ -185,6 +209,34 @@ Finger.prototype.ontouchend = function(e) {
     return
 
   this.touching = false
+
+  // detect taps
+  if ( this.start.distance < 2 && this.inner.contains( this.start.target ) ) {
+    if ( !this.tap ) {
+      if ( this.config.dbltap ) {
+        this.tap = {
+          time: +new Date(),
+          pageX: this.start.pageX,
+          pageY: this.start.pageY,
+          timer: window.setTimeout(function() {
+            this.trigger('tap', { target: this.start.target })
+            this.tap = 0
+          }.bind(this), 300)
+        }
+      } else {
+        this.trigger('tap', { target: this.start.target })
+      }
+    } else {
+      var tapDistance = Math.max(
+        abs(this.tap.pageX - this.start.pageX),
+        abs(this.tap.pageY - this.start.pageY)
+      )
+      if ( tapDistance < 100 )
+        this.trigger('dbltap', { target: this.start.target })
+      this.clearTap()
+    }
+  } else
+    this.clearTap()
 
   // determine if slide attempt triggers next/prev slide
   var isValidSlide = +new Date() - this.start.time < 250 &&
