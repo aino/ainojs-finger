@@ -54,8 +54,8 @@ var Finger = function(elem, options) {
     }
   }
 
-  this.elem = elem
-  this.child = elem.firstChild
+  this.container = elem
+  this.inner = elem.firstChild
   this.to = this.pos = 0
   this.touching = false
   this.start = {}
@@ -86,8 +86,9 @@ var Finger = function(elem, options) {
 EventMixin.call(Finger.prototype)
 
 Finger.prototype.setup = function() {
-  this.width = Dimensions( this.elem ).width
-  this.length = Math.ceil( Dimensions(this.child).width / this.width )
+  this.width = Dimensions( this.container ).width
+  this.items = this.inner.children
+  this.length = this.items.length
   if ( this.index !== 0 ) {
     this.index = this.validateIndex( this.index )
     this.pos = this.to = -this.width*this.index
@@ -96,7 +97,7 @@ Finger.prototype.setup = function() {
 }
 
 Finger.prototype.destroy = function() {
-  unbind(elem, 'touchstart', this.ontouchstart)
+  unbind(this.container, 'touchstart', this.ontouchstart)
   unbind(window, 'resize', this.setup)
   unbind(window, 'orientationchange', this.setup)
   unbind(document, 'touchmove', this.ontouchmove)
