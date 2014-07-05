@@ -3,9 +3,8 @@ var Dimensions = require('ainojs-dimensions')
 var EventMixin = require('ainojs-events')
 
 // shortcuts
-var document = window.document,
-    abs = Math.abs,
-    html = document.documentElement
+var document = window.document
+var abs = Math.abs
 
 // short event bindings
 var bind = function(elem, type, handler) {

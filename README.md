@@ -31,7 +31,7 @@ All CSS must be added manually. Finger implemenets the ainojs-events interface. 
 Options:
 
 - start (0) - starting point
-- duration (340) - animation duration in ms
+- duration (600) - animation duration in ms
 
 Events:
 
