@@ -21,6 +21,7 @@ All CSS must be added manually. Finger implemenets the ainojs-events interface. 
     finger.on('frame', function(e) {
       console.log(e.value) // index value from 0-[length]
       console.log(e.position) // position value
+      this.inner.style.left = e.position + 'px'
     })
 
     // callback for animation complete:
@@ -32,7 +33,7 @@ Options:
 
 - start (0) - starting point
 - duration (600) - animation duration in ms
-- dubltap (true) - set to false for faster tap event if doubletap is not used
+- dbltap (true) - set to false for faster tap event if doubletap is not used
 
 Events:
 

@@ -20,9 +20,13 @@ var tracker = []
 var Finger = function(elem, options) {
 
   // test for basic js support
-  if ( !document.addEventListener || !Array.prototype.forEach || !('contains' in document.createElement('a')) )  {
-    return
-  }
+  if ( 
+    !document.addEventListener || 
+    !Array.prototype.forEach || 
+    !('contains' in document.body) ||
+    !Function.prototype.bind ||
+    !document.body.hasOwnProperty('children')
+  ) return
 
   if ( !(this instanceof Finger) )
     return new Finger(elem, options)
@@ -87,10 +91,10 @@ var Finger = function(elem, options) {
 
   // set up width
   this.setup()
-}
 
-// mixin events
-EventMixin.call(Finger.prototype)
+  // mixin events
+  EventMixin.call(this)
+}
 
 Finger.prototype.setup = function() {
   this.width = Dimensions( this.container ).width
