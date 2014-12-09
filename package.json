@@ -11,7 +11,7 @@
     "url": "https://github.com/aino/ainojs-finger/issues"
   },
   "homepage": "https://github.com/aino/ainojs-finger",
-  "main": "finger.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
