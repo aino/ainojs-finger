@@ -19,26 +19,26 @@
 7 verbose parsed url   href: '.' }
 8 silly lockFile 3a52ce78- .
 9 verbose lock . /Users/david/.npm/3a52ce78-.lock
-10 verbose tar pack [ '/Users/david/.npm/ainojs-finger/1.0.25/package.tgz', '.' ]
-11 verbose tarball /Users/david/.npm/ainojs-finger/1.0.25/package.tgz
+10 verbose tar pack [ '/Users/david/.npm/ainojs-finger/1.0.26/package.tgz', '.' ]
+11 verbose tarball /Users/david/.npm/ainojs-finger/1.0.26/package.tgz
 12 verbose folder .
-13 info prepublish ainojs-finger@1.0.25
+13 info prepublish ainojs-finger@1.0.26
 14 silly lockFile 1f1177db-tar tar://.
 15 verbose lock tar://. /Users/david/.npm/1f1177db-tar.lock
-16 silly lockFile 0d4d14d8-ainojs-finger-1-0-25-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.25/package.tgz
-17 verbose lock tar:///Users/david/.npm/ainojs-finger/1.0.25/package.tgz /Users/david/.npm/0d4d14d8-ainojs-finger-1-0-25-package-tgz.lock
+16 silly lockFile 44f64dca-ainojs-finger-1-0-26-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.26/package.tgz
+17 verbose lock tar:///Users/david/.npm/ainojs-finger/1.0.26/package.tgz /Users/david/.npm/44f64dca-ainojs-finger-1-0-26-package-tgz.lock
 18 silly lockFile 1f1177db-tar tar://.
 19 silly lockFile 1f1177db-tar tar://.
-20 silly lockFile 0d4d14d8-ainojs-finger-1-0-25-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.25/package.tgz
-21 silly lockFile 0d4d14d8-ainojs-finger-1-0-25-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.25/package.tgz
-22 silly lockFile b8ee4b4c-npm-ainojs-finger-1-0-25-package /Users/david/.npm/ainojs-finger/1.0.25/package
-23 verbose lock /Users/david/.npm/ainojs-finger/1.0.25/package /Users/david/.npm/b8ee4b4c-npm-ainojs-finger-1-0-25-package.lock
-24 silly lockFile b8ee4b4c-npm-ainojs-finger-1-0-25-package /Users/david/.npm/ainojs-finger/1.0.25/package
-25 silly lockFile b8ee4b4c-npm-ainojs-finger-1-0-25-package /Users/david/.npm/ainojs-finger/1.0.25/package
+20 silly lockFile 44f64dca-ainojs-finger-1-0-26-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.26/package.tgz
+21 silly lockFile 44f64dca-ainojs-finger-1-0-26-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.26/package.tgz
+22 silly lockFile f3d5ae99-npm-ainojs-finger-1-0-26-package /Users/david/.npm/ainojs-finger/1.0.26/package
+23 verbose lock /Users/david/.npm/ainojs-finger/1.0.26/package /Users/david/.npm/f3d5ae99-npm-ainojs-finger-1-0-26-package.lock
+24 silly lockFile f3d5ae99-npm-ainojs-finger-1-0-26-package /Users/david/.npm/ainojs-finger/1.0.26/package
+25 silly lockFile f3d5ae99-npm-ainojs-finger-1-0-26-package /Users/david/.npm/ainojs-finger/1.0.26/package
 26 silly lockFile 3a52ce78- .
 27 silly lockFile 3a52ce78- .
 28 silly publish { name: 'ainojs-finger',
-28 silly publish   version: '1.0.25',
+28 silly publish   version: '1.0.26',
 28 silly publish   description: 'Swipe/flick physics for touch devices',
 28 silly publish   repository: { type: 'git', url: 'https://github.com/aino/ainojs-finger' },
 28 silly publish   license: 'MIT',
@@ -54,16 +54,56 @@
 28 silly publish      'ainojs-requestframe': 'latest' },
 28 silly publish   readme: 'Finger\n------\n\nSwipe/flick physics for touch devices. Usage:\n\n    var finger = Finger(element, options)\n\nThe element must be a container that contains another slidecontainer. Example markup:\n\n    <div class="container">\n      <div class="slides">\n        <div class="slide"></div>\n        <div class="slide"></div>\n      </div>\n    </div>\n\n\nAll CSS must be added manually. Finger implemenets the ainojs-events interface. Example:\n  \n    // callback for each frame:\n    finger.on(\'frame\', function(e) {\n      console.log(e.value) // index value from 0-[length]\n      console.log(e.position) // position value\n      this.inner.style.left = e.position + \'px\'\n    })\n\n    // callback for animation complete:\n    finger.on(\'complete\', function(e) {\n      console.log(e.index) // index value from 0-[length]\n    })\n\nOptions:\n\n- start (0) - starting point\n- duration (600) - animation duration in ms\n- dbltap (true) - set to false for faster tap event if doubletap is not used\n\nEvents:\n\n- frame - triggers every frame. Event object: *value* and *position*\n- complete - triggers when animation is complete. Event object: *index*\n- tap - triggers when a tap is detected. Event object: *target*\n- dbltap - triggers when a doubbletap is detected. Event object: *target*',
 28 silly publish   readmeFilename: 'README.md',
-28 silly publish   gitHead: '6c0c9b92e168a32bc637a90b52638a7c49838b35',
-28 silly publish   _id: 'ainojs-finger@1.0.25',
-28 silly publish   _shasum: '42b95a69d54da53552c993e3f763999e74e017a7',
+28 silly publish   gitHead: 'f94a48e5dfff03e1f6f34f57225b8707e686dfdb',
+28 silly publish   _id: 'ainojs-finger@1.0.26',
+28 silly publish   _shasum: '67b9d5a471047377c1aaeb56e5d8c569b78895a8',
 28 silly publish   _from: '.' }
-29 error need auth auth and email required for publishing
-29 error need auth You need to authorize this machine using `npm adduser`
-30 error System Darwin 14.0.0
-31 error command "node" "/usr/local/bin/npm" "publish"
-32 error cwd /Users/david/Projects/ainojs-finger
-33 error node -v v0.10.34
-34 error npm -v 1.4.28
-35 error code ENEEDAUTH
-36 verbose exit [ 1, true ]
+29 verbose request where is /ainojs-finger
+30 verbose request registry https://registry.npmjs.org/
+31 verbose request id c0e16e3d641a5335
+32 verbose url raw /ainojs-finger
+33 verbose url resolving [ 'https://registry.npmjs.org/', './ainojs-finger' ]
+34 verbose url resolved https://registry.npmjs.org/ainojs-finger
+35 verbose request where is https://registry.npmjs.org/ainojs-finger
+36 info trying registry request attempt 1 at 17:37:16
+37 http PUT https://registry.npmjs.org/ainojs-finger
+38 http 403 https://registry.npmjs.org/ainojs-finger
+39 verbose headers { date: 'Wed, 14 Jan 2015 16:37:17 GMT',
+39 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+39 verbose headers   'content-type': 'application/json',
+39 verbose headers   'cache-control': 'max-age=60',
+39 verbose headers   'content-length': '294',
+39 verbose headers   'accept-ranges': 'bytes',
+39 verbose headers   via: '1.1 varnish',
+39 verbose headers   'x-served-by': 'cache-fra1231-FRA',
+39 verbose headers   'x-cache': 'MISS',
+39 verbose headers   'x-cache-hits': '0',
+39 verbose headers   'x-timer': 'S1421253436.656910,VS0,VE833',
+39 verbose headers   'keep-alive': 'timeout=10, max=50',
+39 verbose headers   connection: 'Keep-Alive' }
+40 error publish Failed PUT 403
+41 error Error: forbidden user: davidhellsing not authorized to modify ainojs-finger
+41 error Changed: dist-tags.latest "1.0.22" -> "1.0.26"
+41 error Added: versions.1.0.26
+41 error Changed: time.modified "2014-12-09T22:14:22.609Z" -> "2015-01-14T16:39:51.220Z"
+41 error Added: time.1.0.26
+41 error Added: _attachments: ainojs-finger
+41 error     at RegClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:308:14)
+41 error     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:246:65)
+41 error     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:236:22)
+41 error     at Request.emit (events.js:98:17)
+41 error     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1142:14)
+41 error     at Request.emit (events.js:117:20)
+41 error     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1096:12)
+41 error     at IncomingMessage.emit (events.js:117:20)
+41 error     at _stream_readable.js:944:16
+41 error     at process._tickCallback (node.js:442:13)
+42 error If you need help, you may report this *entire* log,
+42 error including the npm and node versions, at:
+42 error     <http://github.com/npm/npm/issues>
+43 error System Darwin 14.0.0
+44 error command "node" "/usr/local/bin/npm" "publish"
+45 error cwd /Users/david/Projects/ainojs-finger
+46 error node -v v0.10.34
+47 error npm -v 1.4.28
+48 verbose exit [ 1, true ]
