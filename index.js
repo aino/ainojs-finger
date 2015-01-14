@@ -71,21 +71,12 @@ var Finger = function(elem, options) {
     }
   }.bind(this)
 
-  // Bind event handlers to context
-  ;['ontouchstart','ontouchmove','ontouchend','setup'].forEach(function(fn) {
-    self[fn] = (function(caller) {
-      return function() {
-        caller.apply( self, arguments )
-      }
-    }(self[fn]))
-  })
-
   // bind events
-  bind(elem, 'touchstart', this.ontouchstart)
-  bind(window, 'resize', this.setup)
-  bind(window, 'orientationchange', this.setup)
-  bind(document, 'touchmove', this.ontouchmove)
-  bind(document, 'touchend', this.ontouchend)
+  bind(elem, 'touchstart', this.ontouchstart.bind(this))
+  bind(window, 'resize', this.setup.bind(this))
+  bind(window, 'orientationchange', this.setup.bind(this))
+  bind(document, 'touchmove', this.ontouchmove.bind(this))
+  bind(document, 'touchend', this.ontouchend.bind(this))
 
   // mixin events
   EventMixin.call(this)
