@@ -45,11 +45,10 @@ var Finger = function(elem, options) {
     }
   }
 
-  if ( !elem.firstChild ) {
-    return
-  }
+  this.inner = elem.children[0]
 
-  var self = this
+  if ( !this.inner )
+    return
 
   // extend options
   if ( options ) {
@@ -59,7 +58,6 @@ var Finger = function(elem, options) {
   }
 
   this.container = elem
-  this.inner = elem.firstChild
   this.to = this.pos = 0
   this.touching = false
   this.start = {}
@@ -98,8 +96,7 @@ var Finger = function(elem, options) {
 
 Finger.prototype.setup = function() {
   this.width = Dimensions( this.container ).width
-  this.items = this.inner.children
-  this.length = this.items.length
+  this.length = this.inner.children.length
   if ( this.index !== 0 ) {
     this.index = this.validateIndex( this.index )
     this.pos = this.to = -this.width*this.index
