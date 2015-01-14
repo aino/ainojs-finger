@@ -87,11 +87,12 @@ var Finger = function(elem, options) {
   bind(document, 'touchmove', this.ontouchmove)
   bind(document, 'touchend', this.ontouchend)
 
-  // set up width
-  this.setup()
-
   // mixin events
   EventMixin.call(this)
+
+  // set up width
+  this.setup()
+  
 }
 
 Finger.prototype.setup = function() {
