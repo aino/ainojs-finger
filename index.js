@@ -151,7 +151,7 @@ Finger.prototype.ontouchmove = function(e) {
     return
 
   // don’t swipe if zoomed
-  if ( Dimensions(document.documentElement).width / window.innerWidth > 1 )
+  if ( document.documentElement && Dimensions(document.documentElement).width / window.innerWidth > 1 )
     return
 
   var touch = e.touches
