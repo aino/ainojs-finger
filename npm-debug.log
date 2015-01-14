@@ -19,26 +19,26 @@
 7 verbose parsed url   href: '.' }
 8 silly lockFile 3a52ce78- .
 9 verbose lock . /Users/david/.npm/3a52ce78-.lock
-10 verbose tar pack [ '/Users/david/.npm/ainojs-finger/1.0.23/package.tgz', '.' ]
-11 verbose tarball /Users/david/.npm/ainojs-finger/1.0.23/package.tgz
+10 verbose tar pack [ '/Users/david/.npm/ainojs-finger/1.0.24/package.tgz', '.' ]
+11 verbose tarball /Users/david/.npm/ainojs-finger/1.0.24/package.tgz
 12 verbose folder .
-13 info prepublish ainojs-finger@1.0.23
+13 info prepublish ainojs-finger@1.0.24
 14 silly lockFile 1f1177db-tar tar://.
 15 verbose lock tar://. /Users/david/.npm/1f1177db-tar.lock
-16 silly lockFile 2baf21e4-ainojs-finger-1-0-23-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.23/package.tgz
-17 verbose lock tar:///Users/david/.npm/ainojs-finger/1.0.23/package.tgz /Users/david/.npm/2baf21e4-ainojs-finger-1-0-23-package-tgz.lock
+16 silly lockFile 392be033-ainojs-finger-1-0-24-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.24/package.tgz
+17 verbose lock tar:///Users/david/.npm/ainojs-finger/1.0.24/package.tgz /Users/david/.npm/392be033-ainojs-finger-1-0-24-package-tgz.lock
 18 silly lockFile 1f1177db-tar tar://.
 19 silly lockFile 1f1177db-tar tar://.
-20 silly lockFile 2baf21e4-ainojs-finger-1-0-23-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.23/package.tgz
-21 silly lockFile 2baf21e4-ainojs-finger-1-0-23-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.23/package.tgz
-22 silly lockFile 6235201f-npm-ainojs-finger-1-0-23-package /Users/david/.npm/ainojs-finger/1.0.23/package
-23 verbose lock /Users/david/.npm/ainojs-finger/1.0.23/package /Users/david/.npm/6235201f-npm-ainojs-finger-1-0-23-package.lock
-24 silly lockFile 6235201f-npm-ainojs-finger-1-0-23-package /Users/david/.npm/ainojs-finger/1.0.23/package
-25 silly lockFile 6235201f-npm-ainojs-finger-1-0-23-package /Users/david/.npm/ainojs-finger/1.0.23/package
+20 silly lockFile 392be033-ainojs-finger-1-0-24-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.24/package.tgz
+21 silly lockFile 392be033-ainojs-finger-1-0-24-package-tgz tar:///Users/david/.npm/ainojs-finger/1.0.24/package.tgz
+22 silly lockFile d109d7e2-npm-ainojs-finger-1-0-24-package /Users/david/.npm/ainojs-finger/1.0.24/package
+23 verbose lock /Users/david/.npm/ainojs-finger/1.0.24/package /Users/david/.npm/d109d7e2-npm-ainojs-finger-1-0-24-package.lock
+24 silly lockFile d109d7e2-npm-ainojs-finger-1-0-24-package /Users/david/.npm/ainojs-finger/1.0.24/package
+25 silly lockFile d109d7e2-npm-ainojs-finger-1-0-24-package /Users/david/.npm/ainojs-finger/1.0.24/package
 26 silly lockFile 3a52ce78- .
 27 silly lockFile 3a52ce78- .
 28 silly publish { name: 'ainojs-finger',
-28 silly publish   version: '1.0.23',
+28 silly publish   version: '1.0.24',
 28 silly publish   description: 'Swipe/flick physics for touch devices',
 28 silly publish   repository: { type: 'git', url: 'https://github.com/aino/ainojs-finger' },
 28 silly publish   license: 'MIT',
@@ -54,9 +54,9 @@
 28 silly publish      'ainojs-requestframe': 'latest' },
 28 silly publish   readme: 'Finger\n------\n\nSwipe/flick physics for touch devices. Usage:\n\n    var finger = Finger(element, options)\n\nThe element must be a container that contains another slidecontainer. Example markup:\n\n    <div class="container">\n      <div class="slides">\n        <div class="slide"></div>\n        <div class="slide"></div>\n      </div>\n    </div>\n\n\nAll CSS must be added manually. Finger implemenets the ainojs-events interface. Example:\n  \n    // callback for each frame:\n    finger.on(\'frame\', function(e) {\n      console.log(e.value) // index value from 0-[length]\n      console.log(e.position) // position value\n      this.inner.style.left = e.position + \'px\'\n    })\n\n    // callback for animation complete:\n    finger.on(\'complete\', function(e) {\n      console.log(e.index) // index value from 0-[length]\n    })\n\nOptions:\n\n- start (0) - starting point\n- duration (600) - animation duration in ms\n- dbltap (true) - set to false for faster tap event if doubletap is not used\n\nEvents:\n\n- frame - triggers every frame. Event object: *value* and *position*\n- complete - triggers when animation is complete. Event object: *index*\n- tap - triggers when a tap is detected. Event object: *target*\n- dbltap - triggers when a doubbletap is detected. Event object: *target*',
 28 silly publish   readmeFilename: 'README.md',
-28 silly publish   gitHead: '9054a3a798235bd265c6c91468f7ff77bb3280ca',
-28 silly publish   _id: 'ainojs-finger@1.0.23',
-28 silly publish   _shasum: 'c9dcb75547ba1aa337855071e1f6f65dd6628a0f',
+28 silly publish   gitHead: '028de9fd8537fa3ffa8bc29e16f332011641d8f4',
+28 silly publish   _id: 'ainojs-finger@1.0.24',
+28 silly publish   _shasum: '40b6a2c401fd5dff506997d92d5641f8f00eacdd',
 28 silly publish   _from: '.' }
 29 error need auth auth and email required for publishing
 29 error need auth You need to authorize this machine using `npm adduser`

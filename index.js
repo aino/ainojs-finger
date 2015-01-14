@@ -10,7 +10,6 @@ var abs = Math.abs
 var bind = function(elem, type, handler) {
   elem.addEventListener(type, handler, false)
 }
-
 var unbind = function(elem, type, handler) {
   elem.removeEventListener(type, handler, false)
 }
