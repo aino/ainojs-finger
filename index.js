@@ -1,4 +1,4 @@
-var RequestFrame = require('ainojs-requestframe')
+var RequestFrame = require('raf')
 var Dimensions = require('ainojs-dimensions')
 var EventMixin = require('ainojs-events')
 
@@ -83,12 +83,11 @@ var Finger = function(elem, options) {
 
   // set up width
   this.setup()
-  
 }
 
 Finger.prototype.setup = function() {
   this.width = Dimensions( this.container ).width
-  this.length = this.inner.children.length
+  this.length = Math.ceil( Dimensions( this.inner ).width / this.width )
   if ( this.index !== 0 ) {
     this.index = this.validateIndex( this.index )
     this.pos = this.to = -this.width*this.index
