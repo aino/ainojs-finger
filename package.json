@@ -20,6 +20,7 @@
   "dependencies": {
     "ainojs-dimensions": "latest",
     "ainojs-events": "latest",
-    "ainojs-requestframe": "latest"
+    "ainojs-requestframe": "latest",
+    "raf": "^2.0.4"
   }
 }
