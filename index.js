@@ -19,17 +19,17 @@ var tracker = []
 
 var Finger = function(elem, options) {
 
+  if ( !(this instanceof Finger) )
+    return new Finger(elem, options)
+
   // test for basic js support
   if ( 
     !document.addEventListener || 
     !Array.prototype.forEach || 
     !('contains' in document.body) ||
     !Function.prototype.bind ||
-    !document.body.hasOwnProperty('children')
+    !document.body.children
   ) return
-
-  if ( !(this instanceof Finger) )
-    return new Finger(elem, options)
 
   // default options
   this.config = {
