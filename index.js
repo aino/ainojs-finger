@@ -81,7 +81,6 @@ var Finger = function(elem, options) {
   // mixin events
   EventMixin.call(this)
 
-  // set up width
   this.setup()
 }
 
