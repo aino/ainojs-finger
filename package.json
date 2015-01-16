@@ -1,6 +1,6 @@
 {
   "name": "ainojs-finger",
-  "version": "1.0.31",
+  "version": "1.1.1",
   "description": "Swipe/flick physics for touch devices",
   "repository": {
     "type": "git",
@@ -20,6 +20,6 @@
   "dependencies": {
     "ainojs-dimensions": "latest",
     "ainojs-events": "latest",
-    "ainojs-requestframe": "latest"
+    "raf": "^2.0.4"
   }
 }
