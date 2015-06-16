@@ -3,7 +3,6 @@ var Dimensions = require('ainojs-dimensions')
 var EventMixin = require('ainojs-events')
 
 // shortcuts
-var document = window.document
 var abs = Math.abs
 
 // short event bindings
@@ -17,25 +16,21 @@ var unbind = function(elem, type, handler) {
 // track velocity
 var tracker = []
 
-var Finger = function(elem, options) {
+module.exports = function(elem, options) {
 
-  if ( !(this instanceof Finger) )
-    return new Finger(elem, options)
+  if ( !(this instanceof module.exports) )
+    return new module.exports(elem, options)
 
   // test for basic js support
-  if ( 
-    !document.addEventListener || 
-    !Array.prototype.forEach || 
-    !('contains' in document.body) ||
-    !Function.prototype.bind ||
-    !document.body.children
-  ) return
+  if ( !this.support() )
+    return
 
   // default options
   this.config = {
     start: 0,
     duration: 600, // will decrease on smaller screens
-    dbltap: true, // set to false for faster tap event if doubletap is not needed
+    mouse: true, // set to false if mouse interactions should be disabled
+    dbltap: false, // set to true for for doubletap support
     easing: function(x,t,b,c,d) {
       return -c * ((t=t/d-1)*t*t*t - 1) + b // easeOutQuart
     },
@@ -72,11 +67,18 @@ var Finger = function(elem, options) {
   }.bind(this)
 
   // bind events
-  bind(elem, 'touchstart', this.ontouchstart.bind(this))
   bind(window, 'resize', this.setup.bind(this))
   bind(window, 'orientationchange', this.setup.bind(this))
+  bind(elem, 'touchstart', this.ontouchstart.bind(this))
   bind(document, 'touchmove', this.ontouchmove.bind(this))
   bind(document, 'touchend', this.ontouchend.bind(this))
+
+  if ( this.config.mouse ) {
+    bind(elem, 'mousedown', this.ontouchstart.bind(this))
+    bind(document, 'mousemove', this.ontouchmove.bind(this))
+    bind(document, 'mouseup', this.ontouchend.bind(this))
+  }
+
 
   // mixin events
   EventMixin.call(this)
@@ -84,7 +86,18 @@ var Finger = function(elem, options) {
   this.setup()
 }
 
-Finger.prototype.setup = function() {
+module.exports.prototype.support = function() {
+  return (
+    typeof window != 'undefined' &&
+    document.addEventListener &&
+    Array.prototype.forEach &&
+    'contains' in document.body &&
+    Function.prototype.bind &&
+    document.body.children
+  )
+}
+
+module.exports.prototype.setup = function() {
   this.width = Dimensions( this.container ).width
   this.length = Math.ceil( Dimensions( this.inner ).width / this.width )
   if ( this.index !== 0 ) {
@@ -94,7 +107,7 @@ Finger.prototype.setup = function() {
   this.loop()
 }
 
-Finger.prototype.destroy = function() {
+module.exports.prototype.destroy = function() {
   unbind(this.container, 'touchstart', this.ontouchstart)
   unbind(window, 'resize', this.setup)
   unbind(window, 'orientationchange', this.setup)
@@ -102,13 +115,13 @@ Finger.prototype.destroy = function() {
   unbind(document, 'touchend', this.ontouchend)
 }
 
-Finger.prototype.validateIndex = function(index) {
+module.exports.prototype.validateIndex = function(index) {
   return Math.min(this.length-1, Math.max(0, index))
 }
 
-Finger.prototype.ontouchstart = function(e) {
+module.exports.prototype.ontouchstart = function(e) {
 
-  var touch = e.touches
+  var touch = e.touches || [e]
 
   this.start = {
     pageX: touch[0].pageX,
@@ -134,16 +147,12 @@ Finger.prototype.ontouchstart = function(e) {
   this.loop()
 }
 
-Finger.prototype.ontouchmove = function(e) {
+module.exports.prototype.ontouchmove = function(e) {
 
   if ( !this.touching )
     return
 
-  // don’t swipe if zoomed
-  if ( document.documentElement && Dimensions(document.documentElement).width / window.innerWidth > 1 )
-    return
-
-  var touch = e.touches
+  var touch = e.touches || [e]
 
   // ensure swiping with one touch and not pinching
   if( touch && touch.length > 1 || e.scale && e.scale !== 1 ) return
@@ -180,9 +189,6 @@ Finger.prototype.ontouchmove = function(e) {
        ( abs(this.deltaX) / this.width + 1.8 )  : 1 )
     this.to = this.deltaX - this.index * this.width
 
-    // track the valocity
-    var touch = e.touches
-
     tracker.push({
       pageX: touch[0].pageX - this.start.pageX,
       time: +new Date() - this.start.time
@@ -194,7 +200,7 @@ Finger.prototype.ontouchmove = function(e) {
   e.stopPropagation()
 }
 
-Finger.prototype.ontouchend = function(e) {
+module.exports.prototype.ontouchend = function(e) {
 
   if ( !this.touching )
     return
@@ -246,14 +252,14 @@ Finger.prototype.ontouchend = function(e) {
     this.animateTo( this.index )
 }
 
-Finger.prototype.animateTo = function( index ) {
+module.exports.prototype.animateTo = function( index ) {
   index = this.validateIndex(index)
   this.to = -( index*this.width )
   this.index = this.projection = index
   this.loop()
 },
 
-Finger.prototype.jumpTo = function( index ) {
+module.exports.prototype.jumpTo = function( index ) {
   index = this.validateIndex( index )
   if ( index !== this.index )
     this.trigger('complete', { index: index }, this)
@@ -262,7 +268,7 @@ Finger.prototype.jumpTo = function( index ) {
   this.loop()
 },
 
-Finger.prototype.loop = function() {
+module.exports.prototype.loop = function() {
 
   var distance = this.to - this.pos
 
@@ -316,5 +322,3 @@ Finger.prototype.loop = function() {
   if ( this.touching || this.anim )
     RequestFrame(this.loop.bind(this))
 }
-
-module.exports = Finger
