@@ -1,6 +1,6 @@
 {
   "name": "ainojs-finger",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Swipe/flick physics for touch devices",
   "repository": {
     "type": "git",
