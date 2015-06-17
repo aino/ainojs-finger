@@ -37,13 +37,17 @@ module.exports = function(elem, options) {
     bounceEasing: function (x, t, b, c, d, s) {
       if (s == undefined) s = 2.0158;
       return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
-    }
+    },
+    items: null, // manually set number of items
+    vertical: false // vertical instead of horizontal
   }
 
   this.inner = elem.children[0]
 
-  if ( !this.inner )
+  if ( !this.inner ) {
+    throw 'No inner element found'
     return
+  }
 
   // extend options
   if ( options ) {
@@ -84,6 +88,7 @@ module.exports = function(elem, options) {
   EventMixin.call(this)
 
   this.setup()
+
 }
 
 module.exports.prototype.support = function() {
@@ -98,21 +103,31 @@ module.exports.prototype.support = function() {
 }
 
 module.exports.prototype.setup = function() {
-  this.width = Dimensions( this.container ).width
-  this.length = Math.ceil( Dimensions( this.inner ).width / this.width )
+  var m = this.config.vertical ? 'height' : 'width'
+  this.total = Dimensions( this.container )[m]
+  this.length = typeof this.config.items == 'number' ? 
+                this.config.items : 
+                Math.ceil( Dimensions( this.inner )[m] / this.total )
   if ( this.index !== 0 ) {
     this.index = this.validateIndex( this.index )
-    this.pos = this.to = -this.width*this.index
+    this.pos = this.to = -this.total*this.index
   }
   this.loop()
 }
 
 module.exports.prototype.destroy = function() {
-  unbind(this.container, 'touchstart', this.ontouchstart)
   unbind(window, 'resize', this.setup)
   unbind(window, 'orientationchange', this.setup)
+
+  unbind(this.container, 'touchstart', this.ontouchstart)
   unbind(document, 'touchmove', this.ontouchmove)
   unbind(document, 'touchend', this.ontouchend)
+
+  if ( this.config.mouse ) {
+    unbind(elem, 'mousedown', this.ontouchstart)
+    unbind(document, 'mousemove', this.ontouchmove)
+    unbind(document, 'mouseup', this.ontouchend)
+  }
 }
 
 module.exports.prototype.validateIndex = function(index) {
@@ -135,12 +150,12 @@ module.exports.prototype.ontouchstart = function(e) {
 
   this.isScrolling = null
   this.touching = true
-  this.deltaX = 0
+  this.delta = 0
   this.offset = 0
 
   if ( this.anim ) {
     this.to = this.pos
-    this.offset = (this.pos + (this.width*this.index))
+    this.offset = (this.pos + (this.total*this.index))
     this.anim = 0
   }
 
@@ -157,40 +172,41 @@ module.exports.prototype.ontouchmove = function(e) {
   // ensure swiping with one touch and not pinching
   if( touch && touch.length > 1 || e.scale && e.scale !== 1 ) return
 
-  this.deltaX = touch[0].pageX - this.start.pageX + this.offset
+  this.delta = this.config.vertical ? 
+    touch[0].pageY - this.start.pageY + this.offset :
+    touch[0].pageX - this.start.pageX + this.offset
   
   var dx = abs(touch[0].pageX - this.start.pageX)
   var dy = abs(touch[0].pageY - this.start.pageY)
 
   // determine if scrolling test has run - one time test
   if ( this.isScrolling === null ) {
-    this.isScrolling = !!(
-      this.isScrolling || dx < dy
-    )
-  }
-
-  // save distance for tap event
-  this.start.distance = Math.max( dx, dy )
-
-  // clear old taps on move
-  if ( this.start.distance > 2 ) {
-    this.clearTap()
+    this.isScrolling = !!(this.isScrolling || ( this.config.vertical ? dy < dx : dx < dy))
   }
 
   // if user is not trying to scroll vertically
   if (!this.isScrolling) {
+
+    // save distance for tap event
+    this.start.distance = Math.max( dx, dy )
+
+    // clear old taps on move
+    if ( this.start.distance > 2 ) {
+      this.clearTap()
+    }
 
     // prevent native scrolling
     e.preventDefault()
     this.start.prevent()
 
     // increase resistance if first or last slide
-    this.deltaX /= ( (!this.index && this.deltaX > 0 || this.index == this.length - 1 && this.deltaX < 0 ) ?
-       ( abs(this.deltaX) / this.width + 1.8 )  : 1 )
-    this.to = this.deltaX - this.index * this.width
+    this.delta /= ( (!this.index && this.delta > 0 || this.index == this.length - 1 && this.delta < 0 ) ?
+       ( abs(this.delta) / this.total + 1.8 )  : 1 )
+    this.to = this.delta - this.index * this.total
 
     tracker.push({
       pageX: touch[0].pageX - this.start.pageX,
+      pageY: touch[0].pageY - this.start.pageY,
       time: +new Date() - this.start.time
     })
 
@@ -237,67 +253,69 @@ module.exports.prototype.ontouchend = function(e) {
 
   // determine if slide attempt triggers next/prev slide
   var isValidSlide = +new Date() - this.start.time < 250 &&
-        abs(this.deltaX) > 40 ||
-        abs(this.deltaX) > this.width/2,
+        abs(this.delta) > 40 ||
+        abs(this.delta) > this.total/2,
 
-      isPastBounds = !this.index && this.deltaX > 0 ||
-        this.index == this.length - 1 && this.deltaX < 0
+      isPastBounds = !this.index && this.delta > 0 ||
+        this.index == this.length - 1 && this.delta < 0
 
-  // if not scrolling vertically
+  // if not scrolling
   if ( !this.isScrolling ) {
     this.projection += ( isValidSlide && !isPastBounds ? 
-      ((this.deltaX-this.offset) < 0 ? 1 : -1) : 0 )
+      ((this.delta-this.offset) < 0 ? 1 : -1) : 0 )
     this.animateTo( this.projection )
   } else if ( this.offset )
     this.animateTo( this.index )
+
+  this.isScrolling = null
 }
 
 module.exports.prototype.animateTo = function( index ) {
   index = this.validateIndex(index)
-  this.to = -( index*this.width )
+  this.to = -( index*this.total )
   this.index = this.projection = index
   this.loop()
-},
+}
 
 module.exports.prototype.jumpTo = function( index ) {
   index = this.validateIndex( index )
   if ( index !== this.index )
     this.trigger('complete', { index: index }, this)
-  this.to = this.pos = -( index*this.width )
+  this.to = this.pos = -( index*this.total )
   this.index = this.projection = index
   this.loop()
-},
+}
 
 module.exports.prototype.loop = function() {
 
   var distance = this.to - this.pos
+  var oldpos = this.pos
 
   // if distance is short or the user is touching, do a 1-1 animation
   if ( this.touching || abs(distance) <= 1 ) {
     this.pos = this.to
     if ( this.anim ) {
-      this.index = this.projection = abs(Math.round(this.pos/this.width))
+      this.index = this.projection = abs(Math.round(this.pos/this.total))
       this.trigger('complete', {index: this.index }, this)
     }
     this.anim = 0
   } else {
-
     if ( !this.anim ) {
 
       // save animation parameters
       // extract velocity first
       var velocity = 0.6
-      var travel = this.width
+      var travel = this.total
       if ( tracker.length ) {
         var last = tracker[tracker.length-1]
-        travel = (last.pageX - tracker[0].pageX)
+        travel = this.config.vertical ? last.pageY - tracker[0].pageY : last.pageX - tracker[0].pageX
         velocity = travel / (last.time - tracker[0].time)
         tracker = []
       }
 
       // detect bounce
-      var isEdge = abs(this.start.pos) == abs(this.index*this.width)
-      var bounce = !isEdge && abs(velocity) > 2.5 && abs(travel) / this.width > 0.35
+      var isEdge = abs(this.start.pos) == abs(this.index*this.total)
+      var bounce = !isEdge && abs(velocity) > 2.5 && abs(travel) / this.total > 0.35
       var duration = this.config.duration
       if ( !isEdge )
         duration *= Math.min(1.2, Math.max(0.6, abs(distance/768))) // factorize 768
@@ -313,11 +331,12 @@ module.exports.prototype.loop = function() {
     // apply easing
     this.pos = this.anim.easing(null, +new Date() - this.anim.time, this.anim.position, this.anim.distance, this.anim.duration)
   }
-
-  this.trigger('frame', {
-    value: -this.pos/this.width,
-    position: this.pos
-  }, this)
+  if ( oldpos != this.pos ) {
+    this.trigger('frame', {
+      value: -this.pos/this.total,
+      position: this.pos
+    }, this)
+  }
 
   if ( this.touching || this.anim )
     RequestFrame(this.loop.bind(this))
