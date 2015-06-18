@@ -1,4 +1,3 @@
-var RequestFrame = require('raf')
 var Dimensions = require('ainojs-dimensions')
 var EventMixin = require('ainojs-events')
 
@@ -112,7 +111,7 @@ module.exports.prototype.setup = function() {
     this.index = this.validateIndex( this.index )
     this.pos = this.to = -this.total*this.index
   }
-  this.loop()
+  this.run()
 }
 
 module.exports.prototype.destroy = function() {
@@ -159,7 +158,7 @@ module.exports.prototype.ontouchstart = function(e) {
     this.anim = 0
   }
 
-  this.loop()
+  this.run()
 }
 
 module.exports.prototype.ontouchmove = function(e) {
@@ -274,7 +273,7 @@ module.exports.prototype.animateTo = function( index ) {
   index = this.validateIndex(index)
   this.to = -( index*this.total )
   this.index = this.projection = index
-  this.loop()
+  this.run()
 }
 
 module.exports.prototype.jumpTo = function( index ) {
@@ -282,11 +281,12 @@ module.exports.prototype.jumpTo = function( index ) {
   if ( index !== this.index )
     this.trigger('complete', { index: index }, this)
   this.to = this.pos = -( index*this.total )
+  console.log(this.to)
   this.index = this.projection = index
-  this.loop()
+  this.run(true)
 }
 
-module.exports.prototype.loop = function() {
+module.exports.prototype.run = function(force) {
 
   var distance = this.to - this.pos
   var oldpos = this.pos
@@ -331,13 +331,12 @@ module.exports.prototype.loop = function() {
     // apply easing
     this.pos = this.anim.easing(null, +new Date() - this.anim.time, this.anim.position, this.anim.distance, this.anim.duration)
   }
-  if ( oldpos != this.pos ) {
-    this.trigger('frame', {
+  if ( force === true || oldpos != this.pos ) {
+    this.trigger('change', {
       value: -this.pos/this.total,
       position: this.pos
     }, this)
   }
 
-  if ( this.touching || this.anim )
-    RequestFrame(this.loop.bind(this))
+  return this.anim || this.touching
 }
