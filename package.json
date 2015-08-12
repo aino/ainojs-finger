@@ -19,7 +19,6 @@
   "devDependencies": {},
   "dependencies": {
     "ainojs-dimensions": "latest",
-    "ainojs-events": "latest",
-    "raf": "^2.0.4"
+    "ainojs-events": "latest"
   }
 }

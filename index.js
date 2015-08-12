@@ -271,6 +271,8 @@ module.exports.prototype.ontouchend = function(e) {
 
 module.exports.prototype.animateTo = function( index ) {
   index = this.validateIndex(index)
+  if (index !== this.index)
+    this.trigger('page', { index: index }, this)
   this.to = -( index*this.total )
   this.index = this.projection = index
   this.run()
@@ -278,10 +280,11 @@ module.exports.prototype.animateTo = function( index ) {
 
 module.exports.prototype.jumpTo = function( index ) {
   index = this.validateIndex( index )
-  if ( index !== this.index )
+  if ( index !== this.index ) {
+    this.trigger('page', { index: index }, this)
     this.trigger('complete', { index: index }, this)
+  }
   this.to = this.pos = -( index*this.total )
-  console.log(this.to)
   this.index = this.projection = index
   this.run(true)
 }

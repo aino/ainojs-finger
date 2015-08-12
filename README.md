@@ -48,6 +48,7 @@ Options:
 Events:
 
 - change - triggers if a change has been detected frame. Event object: *value* and *position*
+- page - triggers if a page change will happen, before the animation is complete. Event object: *index*
 - complete - triggers when animation is complete. Event object: *index*
 - tap - triggers when a tap is detected. Event object: *target*
 - dbltap - triggers when a doubbletap is detected. Event object: *target*
