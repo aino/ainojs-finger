@@ -123,7 +123,7 @@ module.exports.prototype.destroy = function() {
   unbind(document, 'touchend', this.ontouchend)
 
   if ( this.config.mouse ) {
-    unbind(elem, 'mousedown', this.ontouchstart)
+    typeof elem == 'object' && unbind(elem, 'mousedown', this.ontouchstart)
     unbind(document, 'mousemove', this.ontouchmove)
     unbind(document, 'mouseup', this.ontouchend)
   }
