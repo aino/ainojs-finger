@@ -4,10 +4,9 @@ var EventMixin = require('ainojs-events')
 // shortcuts
 var abs = Math.abs
 
-// track velocity
-var tracker = []
-
 module.exports = function(elem, options) {
+
+  this.tracker = []
 
   if ( !(this instanceof module.exports) )
     return new module.exports(elem, options)
@@ -100,7 +99,7 @@ module.exports.prototype.bindEvents = function() {
   window.addEventListener('orientationchange', this, false)
   document.addEventListener('touchmove', this, false)
   document.addEventListener('touchend', this, false)
-  this.container.addEventListener('touchstart', this. false)
+  this.container.addEventListener('touchstart', this, false)
   if ( this.config.mouse ) {
     this.container.addEventListener('mousedown', this, false)
     document.addEventListener('mousemove', this, false)
@@ -178,7 +177,6 @@ module.exports.prototype.ontouchstart = function(e) {
 }
 
 module.exports.prototype.ontouchmove = function(e) {
-
   if ( !this.touching )
     return
 
@@ -219,20 +217,16 @@ module.exports.prototype.ontouchmove = function(e) {
        ( abs(this.delta) / this.total + 1.8 )  : 1 )
     this.to = this.delta - this.index * this.total
 
-    tracker.push({
+    this.tracker.push({
       pageX: touch[0].pageX - this.start.pageX,
       pageY: touch[0].pageY - this.start.pageY,
       time: +new Date() - this.start.time
     })
 
-    tracker = tracker.slice(-5)
+    this.tracker = this.tracker.slice(-5)
   }
 
   e.stopPropagation()
-}
-
-module.exports.disable = function() {
-  this.isDisabled = true
 }
 
 module.exports.prototype.ontouchend = function(e) {
@@ -242,16 +236,10 @@ module.exports.prototype.ontouchend = function(e) {
 
   this.touching = false
 
-  var touch = e.touches || [e]
-  var didScroll = Math.max(
-    abs(touch[0].pageX - this.start.pageX),
-    abs(touch[0].pageY - this.start.pageY)
-  ) > 2
-
   // detect taps
   if ( this.start.distance < 2 && this.inner.contains( this.start.target ) ) {
     if ( !this.tap ) {
-      if ( didScroll || ( this.config.mouse && !e.pageX ) ) // only detect mouse taps if mouse config is set
+      if ( this.isScrolling || ( this.config.mouse && !e.pageX ) ) // only detect mouse taps if mouse config is set
         return
       if ( this.config.dbltap ) {
         this.tap = {
@@ -338,11 +326,11 @@ module.exports.prototype.run = function(force) {
       // extract velocity first
       var velocity = 0.6
       var travel = this.total
-      if ( tracker.length ) {
-        var last = tracker[tracker.length-1]
-        travel = this.config.vertical ? last.pageY - tracker[0].pageY : last.pageX - tracker[0].pageX
-        velocity = travel / (last.time - tracker[0].time)
-        tracker = []
+      if ( this.tracker.length ) {
+        var last = this.tracker[this.tracker.length-1]
+        travel = this.config.vertical ? last.pageY - this.tracker[0].pageY : last.pageX - this.tracker[0].pageX
+        velocity = travel / (last.time - this.tracker[0].time)
+        this.tracker = []
       }
 
       // detect bounce
