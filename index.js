@@ -6,10 +6,10 @@ var abs = Math.abs
 
 module.exports = function(elem, options) {
 
-  this.tracker = []
-
   if ( !(this instanceof module.exports) )
     return new module.exports(elem, options)
+
+  this.tracker = []
 
   // test for basic js support
   if ( !this.support() )
@@ -52,11 +52,11 @@ module.exports = function(elem, options) {
   this.start = {}
   this.index = this.projection = this.config.start
   this.anim = 0
-  this.tap = 0
+  this.tapData = 0
   this.clearTap = function() {
-    if ( this.tap ) {
-      window.clearTimeout(this.tap.timer)
-      this.tap = 0
+    if ( this.tapData ) {
+      window.clearTimeout(this.tapData.timer)
+      this.tapData = 0
     }
   }.bind(this)
   this.isDisabled = false
@@ -65,14 +65,18 @@ module.exports = function(elem, options) {
     orientationchange: this.setup,
     touchstart: this.ontouchstart,
     touchend: this.ontouchend,
+    tap: this.tap, // special event for tap
     touchmove: this.ontouchmove,
     mousedown: this.ontouchstart,
     mousemove: this.ontouchmove,
     mouseup: this.ontouchend
   }
   this.handleEvent = function(e) {
-    if ( map.hasOwnProperty(e.type) ) {
-      map[e.type].call(this, e)
+    var type = e.type
+    if ( ( type == 'touchend' || type == 'mouseend' ) && e.currentTarget == this.container )
+      type = 'tap'
+    if ( map.hasOwnProperty(type) ) {
+      map[type].call(this, e)
     }
   }
 
@@ -99,11 +103,13 @@ module.exports.prototype.bindEvents = function() {
   window.addEventListener('orientationchange', this, false)
   document.addEventListener('touchmove', this, false)
   document.addEventListener('touchend', this, false)
+  this.container.addEventListener('touchend', this, false)
   this.container.addEventListener('touchstart', this, false)
   if ( this.config.mouse ) {
     this.container.addEventListener('mousedown', this, false)
     document.addEventListener('mousemove', this, false)
     document.addEventListener('mouseup', this, false)
+    this.container.addEventListener('mouseup', this, false)
   }
 }
 
@@ -121,8 +127,8 @@ module.exports.prototype.support = function() {
 module.exports.prototype.setup = function() {
   var m = this.config.vertical ? 'height' : 'width'
   this.total = Dimensions( this.container )[m]
-  this.length = typeof this.config.items == 'number' ? 
-                this.config.items : 
+  this.length = typeof this.config.items == 'number' ?
+                this.config.items :
                 Math.ceil( Dimensions( this.inner )[m] / this.total )
   if ( this.index !== 0 ) {
     this.index = this.validateIndex( this.index )
@@ -136,11 +142,13 @@ module.exports.prototype.destroy = function() {
   window.removeEventListener('orientationchange', this)
   document.removeEventListener('touchmove', this)
   document.removeEventListener('touchend', this)
+  this.container.removeEventListener('touchend', this)
   this.container.removeEventListener('touchstart', this)
   if ( this.config.mouse ) {
     this.container.removeEventListener('mousedown', this)
     document.removeEventListener('mousemove', this)
     document.removeEventListener('mouseup', this)
+    this.container.removeEventListener('mouseup', this, false)
   }
 }
 
@@ -159,7 +167,7 @@ module.exports.prototype.ontouchstart = function(e) {
     pos:   this.pos || 0,
     prevent: function() { e.preventDefault() },
     distance: 0,
-    target: e.target
+    event: e
   }
 
   this.isScrolling = null
@@ -185,10 +193,10 @@ module.exports.prototype.ontouchmove = function(e) {
   // ensure swiping with one touch and not pinching
   if( touch && touch.length > 1 || e.scale && e.scale !== 1 ) return
 
-  this.delta = this.config.vertical ? 
+  this.delta = this.config.vertical ?
     touch[0].pageY - this.start.pageY + this.offset :
     touch[0].pageX - this.start.pageX + this.offset
-  
+
   var dx = abs(touch[0].pageX - this.start.pageX)
   var dy = abs(touch[0].pageY - this.start.pageY)
 
@@ -229,43 +237,45 @@ module.exports.prototype.ontouchmove = function(e) {
   e.stopPropagation()
 }
 
+module.exports.prototype.tap = function(e) {
+  // detect taps
+  if ( this.start.distance < 6 && this.inner.contains( this.start.event.target ) ) {
+    if ( !this.tapData ) {
+      if ( this.isScrolling ) // only detect mouse taps if mouse config is set
+        return
+      if ( this.config.dbltap ) {
+        this.tapData = {
+          type: e.type,
+          time: +new Date(),
+          pageX: this.start.pageX,
+          pageY: this.start.pageY,
+          timer: window.setTimeout(function() {
+            this.trigger('tap', e)
+            this.tapData = 0
+          }.bind(this), 300)
+        }
+      } else {
+        this.trigger('tap', e)
+      }
+    } else {
+      var tapDistance = Math.max(
+        abs(this.tapData.pageX - this.start.pageX),
+        abs(this.tapData.pageY - this.start.pageY)
+      )
+      if ( tapDistance < 100 )
+        this.trigger('dbltap', e)
+      this.clearTap()
+    }
+  } else
+    this.clearTap()
+}
+
 module.exports.prototype.ontouchend = function(e) {
 
   if ( !this.touching )
     return
 
   this.touching = false
-
-  // detect taps
-  if ( this.start.distance < 2 && this.inner.contains( this.start.target ) ) {
-    if ( !this.tap ) {
-      if ( this.isScrolling || ( this.config.mouse && !e.pageX ) ) // only detect mouse taps if mouse config is set
-        return
-      if ( this.config.dbltap ) {
-        this.tap = {
-          type: e.type,
-          time: +new Date(),
-          pageX: this.start.pageX,
-          pageY: this.start.pageY,
-          timer: window.setTimeout(function() {
-            this.trigger('tap', { target: this.start.target })
-            this.tap = 0
-          }.bind(this), 300)
-        }
-      } else {
-        this.trigger('tap', { target: this.start.target })
-      }
-    } else {
-      var tapDistance = Math.max(
-        abs(this.tap.pageX - this.start.pageX),
-        abs(this.tap.pageY - this.start.pageY)
-      )
-      if ( tapDistance < 100 )
-        this.trigger('dbltap', { target: this.start.target })
-      this.clearTap()
-    }
-  } else
-    this.clearTap()
 
   // determine if slide attempt triggers next/prev slide
   var isValidSlide = +new Date() - this.start.time < 250 &&
@@ -277,7 +287,7 @@ module.exports.prototype.ontouchend = function(e) {
 
   // if not scrolling
   if ( !this.isScrolling ) {
-    this.projection += ( isValidSlide && !isPastBounds ? 
+    this.projection += ( isValidSlide && !isPastBounds ?
       ((this.delta-this.offset) < 0 ? 1 : -1) : 0 )
     this.animateTo( this.projection )
   } else if ( this.offset )
@@ -340,10 +350,10 @@ module.exports.prototype.run = function(force) {
       if ( !isEdge )
         duration *= Math.min(1.2, Math.max(0.6, abs(distance/768))) // factorize 768
 
-      this.anim = { 
-        position: this.pos, 
+      this.anim = {
+        position: this.pos,
         distance: distance,
-        time: +new Date(), 
+        time: +new Date(),
         duration: duration,
         easing: bounce ? this.config.bounceEasing : this.config.easing
       }
