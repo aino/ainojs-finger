@@ -4,14 +4,6 @@ var EventMixin = require('ainojs-events')
 // shortcuts
 var abs = Math.abs
 
-// short event bindings
-var bind = function(elem, type, handler) {
-  elem.addEventListener(type, handler, false)
-}
-var unbind = function(elem, type, handler) {
-  elem.removeEventListener(type, handler, false)
-}
-
 // track velocity
 var tracker = []
 
@@ -68,26 +60,52 @@ module.exports = function(elem, options) {
       this.tap = 0
     }
   }.bind(this)
-
-  // bind events
-  bind(window, 'resize', this.setup.bind(this))
-  bind(window, 'orientationchange', this.setup.bind(this))
-  bind(elem, 'touchstart', this.ontouchstart.bind(this))
-  bind(document, 'touchmove', this.ontouchmove.bind(this))
-  bind(document, 'touchend', this.ontouchend.bind(this))
-
-  if ( this.config.mouse ) {
-    bind(elem, 'mousedown', this.ontouchstart.bind(this))
-    bind(document, 'mousemove', this.ontouchmove.bind(this))
-    bind(document, 'mouseup', this.ontouchend.bind(this))
+  this.isDisabled = false
+  var map = {
+    resize: this.setup,
+    orientationchange: this.setup,
+    touchstart: this.ontouchstart,
+    touchend: this.ontouchend,
+    touchmove: this.ontouchmove,
+    mousedown: this.ontouchstart,
+    mousemove: this.ontouchmove,
+    mouseup: this.ontouchend
   }
-
+  this.handleEvent = function(e) {
+    if ( map.hasOwnProperty(e.type) ) {
+      map[e.type].call(this, e)
+    }
+  }
 
   // mixin events
   EventMixin.call(this)
 
+  this.bindEvents()
   this.setup()
 
+}
+
+module.exports.prototype.toggle = function() {
+  if ( !this.isDisabled ) {
+    this.isDisabled = true
+    this.destroy()
+  } else {
+    this.isDisabled = false
+    this.bindEvents()
+  }
+}
+
+module.exports.prototype.bindEvents = function() {
+  window.addEventListener('resize', this, false)
+  window.addEventListener('orientationchange', this, false)
+  document.addEventListener('touchmove', this, false)
+  document.addEventListener('touchend', this, false)
+  this.container.addEventListener('touchstart', this. false)
+  if ( this.config.mouse ) {
+    this.container.addEventListener('mousedown', this, false)
+    document.addEventListener('mousemove', this, false)
+    document.addEventListener('mouseup', this, false)
+  }
 }
 
 module.exports.prototype.support = function() {
@@ -115,17 +133,15 @@ module.exports.prototype.setup = function() {
 }
 
 module.exports.prototype.destroy = function() {
-  unbind(window, 'resize', this.setup)
-  unbind(window, 'orientationchange', this.setup)
-
-  unbind(this.container, 'touchstart', this.ontouchstart)
-  unbind(document, 'touchmove', this.ontouchmove)
-  unbind(document, 'touchend', this.ontouchend)
-
+  window.removeEventListener('resize', this)
+  window.removeEventListener('orientationchange', this)
+  document.removeEventListener('touchmove', this)
+  document.removeEventListener('touchend', this)
+  this.container.removeEventListener('touchstart', this)
   if ( this.config.mouse ) {
-    typeof elem == 'object' && unbind(elem, 'mousedown', this.ontouchstart)
-    unbind(document, 'mousemove', this.ontouchmove)
-    unbind(document, 'mouseup', this.ontouchend)
+    this.container.removeEventListener('mousedown', this)
+    document.removeEventListener('mousemove', this)
+    document.removeEventListener('mouseup', this)
   }
 }
 
@@ -215,6 +231,10 @@ module.exports.prototype.ontouchmove = function(e) {
   e.stopPropagation()
 }
 
+module.exports.disable = function() {
+  this.isDisabled = true
+}
+
 module.exports.prototype.ontouchend = function(e) {
 
   if ( !this.touching )
@@ -222,11 +242,20 @@ module.exports.prototype.ontouchend = function(e) {
 
   this.touching = false
 
+  var touch = e.touches || [e]
+  var didScroll = Math.max(
+    abs(touch[0].pageX - this.start.pageX),
+    abs(touch[0].pageY - this.start.pageY)
+  ) > 2
+
   // detect taps
   if ( this.start.distance < 2 && this.inner.contains( this.start.target ) ) {
     if ( !this.tap ) {
+      if ( didScroll || ( this.config.mouse && !e.pageX ) ) // only detect mouse taps if mouse config is set
+        return
       if ( this.config.dbltap ) {
         this.tap = {
+          type: e.type,
           time: +new Date(),
           pageX: this.start.pageX,
           pageY: this.start.pageY,
