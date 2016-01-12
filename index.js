@@ -76,7 +76,7 @@ module.exports = function(elem, options) {
     if ( ( type == 'touchend' || type == 'mouseup' ) && e.currentTarget == this.container )
       type = 'tap'
     if ( map.hasOwnProperty(type) ) {
-      map[type].call(this, e)
+      map[type].call( this, e )
     }
   }
 
