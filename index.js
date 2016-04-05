@@ -302,6 +302,7 @@ module.exports.prototype.animateTo = function( index ) {
     this.trigger('page', { index: index }, this)
   this.to = -( index*this.total )
   this.index = this.projection = index
+  this.touching = false
   this.run()
 }
 
@@ -313,6 +314,7 @@ module.exports.prototype.jumpTo = function( index ) {
   }
   this.to = this.pos = -( index*this.total )
   this.index = this.projection = index
+  this.touching = false
   this.run(true)
 }
 
@@ -359,7 +361,8 @@ module.exports.prototype.run = function(force) {
       }
     }
     // apply easing
-    this.pos = this.anim.easing(null, +new Date() - this.anim.time, this.anim.position, this.anim.distance, this.anim.duration)
+    var time = Math.min(+new Date() - this.anim.time, this.anim.duration)
+    this.pos = this.anim.easing(null, time, this.anim.position, this.anim.distance, this.anim.duration)
   }
   if ( force === true || oldpos != this.pos ) {
     this.trigger('change', {
